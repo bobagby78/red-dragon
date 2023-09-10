@@ -22,8 +22,41 @@ function Login() {
 
     let handleLoginSubmit = async (e) => {
 
+    }
+
+    let handleRegisterSubmit = async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+
+        if(formData.get('password') !== formData.get('confirmPassword')){
+            alert('Passwords do not match');
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/PHP/auth.php", {
+                method: "POST", 
+                body:formData,
+            });
+
+            console.log(response)
+
+            if(response.ok){
+                const responseData = await response.json(); // Get response data as text
+                alert(responseData.message); //from auth.php
+                setResult('Registration successful');
+            } else {
+                setResult("Registration failed");
+            }
+
+        }catch (error) {
+            console.error('Catch Error: ', error)
+            setResult("An error occurred")
+        }
 
     }
+
 
     let handleEmailChange = (e) => {
         setEmail(e.target.value);
@@ -41,37 +74,7 @@ function Login() {
     let handleConfirm =(e) => {
         setConfirmPassword(e.target.value)
     }
-
-    //create a function that styles the confirm field with a red border until the passwords match. 
     
-    let handleRegisterSubmit = async (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form);
-
-        try {
-            const response = await fetch("http://localhost:8080/PHP/register.php", {
-                method: "POST", 
-                body:formData,
-            });
-
-            console.log(response)
-
-            if(response.ok){
-                const responseData = await response.json(); // Get response data as text
-                alert(responseData.message);
-                setResult('Registration successful');
-            } else {
-                setResult("Registration failed");
-            }
-
-        }catch (error) {
-            console.error('Catch Error: ', error)
-            setResult("An error occurred")
-        }
-
-    }
-
     return (
     <>
         <h1 className='center-text'>Login Page</h1>
@@ -81,7 +84,7 @@ function Login() {
                 <button onClick={showRegisterForm} className='btn btn-secondary'>Register</button>
             </div>
             <div className='col-4 offset-4' id='login-form-container'>
-                <form action="http://localhost:8080/PHP/server.php" 
+                <form action="http://localhost:8080/auth.php" 
                 method="post"
                 onSubmit={handleLoginSubmit}>
                     <h2>Login</h2>
@@ -100,12 +103,12 @@ function Login() {
             
             <div className='d-none col-4 offset-4' id='register-form-container'>
                 <form 
-                action="http://localhost:8080/PHP/register.php"
+                action="http://localhost:8080/auth.php"
                 method='post'
                 onSubmit={handleRegisterSubmit}>
                     <h2>Register</h2>
                     <p>
-                        <input onChange={handleEmailChange} name="email" type="text" placeholder='Email' />
+                        <input onChange={handleEmailChange} name="email" type="email" placeholder='Email' />
                     </p>
                     <p>
                         <input onChange={handleUsernameChange} name="username" type="text" placeholder='Username' />
